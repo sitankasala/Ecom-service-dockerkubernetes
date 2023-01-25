@@ -1,0 +1,31 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  namespace: springboot-k8s
+  name: api-gateway-app
+  labels:
+    app: api-gateway-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: api-gateway-app
+      labels:
+        app: api-gateway-app
+    spec:
+      containers:
+        - name: api-gateway-app
+          image: sitankasala/api-gateway:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 2343
+          env:
+            - name: EUREKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: eureka-server-address
+                  name: discovery-service-cmp
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: api-gateway-app

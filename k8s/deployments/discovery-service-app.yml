@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eureka
+  namespace: springboot-k8s
+spec:
+  serviceName: "eureka"
+  replicas: 1
+  template:
+    metadata:
+      name: eureka
+      labels:
+        app: eureka
+    spec:
+      containers:
+        - name: eureka
+          image: sitankasala/discovery-service:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8761
+          env:
+            - name: EUREKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: eureka-server-address
+                  name: discovery-service-cmp
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: eureka

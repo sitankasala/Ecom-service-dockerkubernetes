@@ -1,0 +1,56 @@
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/orderdb
+    username: root
+    password: mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQLDialect
+  application:
+    name: order-service
+server:
+  port: 8081
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS}
+    eureka-server-port: 8761
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: "${HOSTNAME}.eureka"
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+    neo4j:
+      enabled:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory:
+        register-health-indicator: true
+        event-consumer-buffer-size: 10
+        sliding-window-size: 5
+        sliding-window-type: COUNT_BASED
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

@@ -1,0 +1,25 @@
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: Product-Service
+  application:
+    name: product-service
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS}
+    eureka-server-port: 8761
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: "${HOSTNAME}.eureka"
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+server:
+  port: 8083

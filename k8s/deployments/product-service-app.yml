@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service-app
+  namespace: springboot-k8s
+  labels:
+    app: product-service-app
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: product-service-app
+      labels:
+        app: product-service-app
+    spec:
+      containers:
+        - name: product-service-app
+          image: sitankasala/product-service:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8083
+          env:
+            - name: EUREKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: eureka-server-address
+                  name: discovery-service-cmp
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: product-service-app

@@ -1,0 +1,176 @@
+version: "3.8"
+services:
+  discovery-service:
+    build: ./discovery-service
+    image: discovery-service
+    hostname: discovery-service
+    pull_policy: missing
+    ports:
+      - "8761:8761"
+    expose:
+      - 8761:8761
+    restart: always
+    depends_on:
+      key-cloak:
+        condition: service_started
+      mongo-db:
+        condition: service_started
+    networks:
+      ecom-network:
+        aliases:
+            - "discovery-service"
+  api-gateway:
+    build: ./api-gateway
+    image: api-gateway
+    pull_policy: missing
+    depends_on:
+      discovery-service:
+        condition: service_started
+    ports:
+      - "2343:2343"
+    expose:
+      - 2343:2343
+    restart: always
+    networks:
+      ecom-network:
+        aliases:
+            - "api-gateway"
+    links:
+      - key-cloak
+  inventory-service:
+    build: ./inventory-service
+    image: inventory-service
+    pull_policy: missing
+    depends_on:
+      discovery-service:
+        condition: service_started
+      api-gateway:
+        condition: service_started
+      my-sql:
+        condition: service_started
+    ports:
+      - "8082:8082"
+    expose:
+      - 8082:8082
+    restart: always
+    environment:
+      DB_HOST: my-sql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: mysql
+      DB_NAME: inventory-service
+    links:
+      - my-sql
+      - api-gateway
+    networks:
+      ecom-network:
+        aliases:
+            - "inventory-service"
+  order-service:
+    build: ./order-service
+    image: order-service
+    pull_policy: missing
+    depends_on:
+      inventory-service:
+        condition: service_started
+      discovery-service:
+        condition: service_started
+      api-gateway:
+        condition: service_started
+      my-sql:
+        condition: service_started
+    ports:
+      - "8081:8081"
+    expose:
+      - 8081:8081
+    restart: always
+    environment:
+      DB_HOST: my-sql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: mysql
+      DB_NAME: orderdb
+    links:
+      - my-sql
+      - api-gateway
+    networks:
+      ecom-network:
+        aliases:
+            - "order-service"
+  product-service:
+    build: ./product-service
+    image: product-service
+    pull_policy: missing
+    environment:
+      DB_URL: mongodb://mongo-db/Product-Service
+    depends_on:
+      discovery-service:
+        condition: service_started
+      api-gateway:
+        condition: service_started
+      mongo-db:
+        condition: service_started
+    ports:
+      - "8083:8083"
+    expose:
+      - 8083:8083
+    restart: always
+    links:
+      - mongo-db
+      - api-gateway
+    networks:
+      ecom-network:
+        aliases:
+            - "product-service"
+#  mongo-db:
+#    image: mongo:4.0-xenial
+#    restart: always
+#    ports:
+#      - "27017:27017"
+#    expose:
+#      - 27017:27017
+#    volumes:
+#      - product-service:/data/db/
+#    networks:
+#      ecom-network:
+#  my-sql:
+#    image: mysql:5.7-debian
+#    restart: always
+#    pull_policy: missing
+#    ports:
+#      - "3306:3306"
+#    expose:
+#      - 3306:3306
+#    volumes:
+#      - ./init:/docker-entrypoint-initdb.d
+#    environment:
+#      MYSQL_ROOT_PASSWORD: mysql
+#      MYSQL_HOST: mysql
+#    networks:
+#      ecom-network:
+#  key-cloak:
+#    image: quay.io/keycloak/keycloak:20.0.2
+#    restart: always
+#    ports:
+#      - "8181:8080"
+#    expose:
+#      - 8181:8080
+#    volumes:
+#      - keycloak:/tmp/keycloak
+#    networks:
+#      ecom-network:
+#    environment:
+#      KEYCLOAK_ADMIN: admin
+#      KEYCLOAK_ADMIN_PASSWORD: admin
+#    command:
+#      - start-dev
+
+volumes:
+  product-service:
+    driver: local
+  mysql:
+    driver: local
+  keycloak:
+    driver: local
+networks:
+  ecom-network:

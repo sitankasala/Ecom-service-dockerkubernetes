@@ -1,0 +1,19 @@
+eureka:
+  instance:
+    hostname: "${HOSTNAME}.eureka"
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS}
+server:
+  port: 8761
+spring:
+  application:
+    name: discovery-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

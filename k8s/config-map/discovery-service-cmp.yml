@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: discovery-service-cmp
+  namespace: springboot-k8s
+data:
+  eureka-server-address: http://eureka:password@eureka-0.eureka:8761/eureka/

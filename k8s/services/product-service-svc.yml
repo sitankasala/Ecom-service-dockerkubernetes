@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service-svc
+  namespace: springboot-k8s
+spec:
+  selector:
+    app: product-service-app
+  ports:
+    - port: 80
+      targetPort: 8083
+  type: NodePort

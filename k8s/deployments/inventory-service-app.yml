@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service-app
+  namespace: springboot-k8s
+  labels:
+    app: inventory-service-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: inventory-service-app
+      labels:
+        app: inventory-service-app
+    spec:
+      containers:
+        - name: inventory-service-app
+          image: sitankasala/inventory-service:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: DB_PASSWORD
+              value: mysql
+            - name: DB_HOST
+              value: mysql
+            - name: DATABASE_NAME
+              value: inventory-service
+            - name: EUREKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: eureka-server-address
+                  name: discovery-service-cmp
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: inventory-service-app
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service-svc
+  namespace: springboot-k8s
+spec:
+  selector:
+    app: inventory-service-app
+  ports:
+    - port: 80
+      targetPort: 8082
+  type: NodePort

@@ -1,0 +1,32 @@
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  datasource:
+    url: jdbc:mysql://${DB_HOST}/${DATABASE_NAME}
+    username: root
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+  application:
+    name: inventory-service
+server:
+  port: 8082
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_SERVER_ADDRESS}
+#    eureka-server-port: 8761
+#    register-with-eureka: false
+#    fetch-registry: false
+#  instance:
+#    prefer-ip-address: true
+#    hostname: "${HOSTNAME}.eureka"
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
